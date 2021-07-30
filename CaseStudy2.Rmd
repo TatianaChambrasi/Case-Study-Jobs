@@ -1,0 +1,138 @@
+---
+title: "Case Study 2 -Stout"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r}
+library(tidyr)
+library(DT)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(readxl)
+library(lubridate)
+library(scales)
+library(RColorBrewer)
+library(plotly)
+library(readxl)
+library(readr)
+library(scales)
+library(stringr)
+library(boot)
+library(reshape2)
+```
+
+```{r setup, include=FALSE}
+setwd("~/Desktop/")
+data <- read.csv("~/Desktop/casestudy.csv")
+```
+
+```{r}
+df <- data.frame(data)
+```
+
+## Current revenue of 2017 is $31,417,495
+```{r}
+df %>%
+ group_by(year) %>%
+ summarise(Revenue =sum(net_revenue))
+```
+
+-   New Customer Revenue **e.g. new customers not present in previous year only**
+
+    ```{r}
+cust2017 <- df %>% 
+     filter(year == 2017)
+
+cust2016 <- df %>% 
+     filter( year == 2016)
+
+cust2015 <- df %>% 
+     filter( year == 2015)
+
+
+new_cust2017 <- anti_join(cust2017, cust2016, by = c("customer_email" = "customer_email"))
+new_cust2016 <- anti_join(cust2016, cust2015, by = c("customer_email" = "customer_email"))
+
+R2017<-new_cust2017 %>%
+     summarise(Revenue_new_cust2017 = sum(net_revenue))
+    ```
+## Revenue for new customers 2017 is $28,776,235
+```{r}
+print(R2017)
+```
+## Revenue for new customers 2016 is $18,245,491
+    ```{r}
+R2016<- new_cust2016 %>%
+summarise(Revenue_new_cust2016 = sum(net_revenue))
+    ```
+    
+```{r}
+print(R2016)
+```
+## Existing Customer Growth
+```{r}
+growth <- R2017-R2016
+```
+
+```{r}
+print(growth)
+```
+## Total Customers form 2016 is 145,062.
+```{r}
+add_count(new_cust2016)
+```
+## Total customers from 2017 is 229,028.
+```{r}
+add_count(new_cust2017)
+```
+
+## Existing Customer Revenue Current 2017 is $2,641,260.
+```{r}
+totalrev2017<-sum(cust2017$net_revenue)
+existingrev <- totalrev2017-R2017
+print(existingrev)
+```
+## Existing Customer Revenue for 2016 is $7,485,453.
+```{r}
+totalrev2016 <- sum(cust2016$net_revenue)
+existingrev2016<- totalrev2016-R2016
+print(existingrev2016)
+```
+## New customers in 2017.
+```{r}
+head(new_cust2017,50)
+```
+## Loss of total revenue from 2016 to 2017 is $5,686,551.
+```{r}
+loss <- totalrev2017-totalrev2016
+print(loss)
+```
+## Visuals
+```{r}
+hist(cust2016$net_revenue)
+```
+```{r}
+hist(cust2015$net_revenue)
+```
+
+```{r}
+hist(cust2017$net_revenue)
+```
+
+```{r}
+ ggplot(df, aes(x=factor(year), weights=net_revenue)) + 
+    geom_bar(col="red") + 
+    theme_bw() + 
+    labs(title="Revenue by Year", x="Year", y="$") + 
+    theme(plot.title = element_text(hjust = 0.5))
+```
+
+Overall, looking at the data from 2015 to 2016 there was a slight decrease in net revenue but 
+in 2017 it increased. When looking new customers year to year it seems from 2016 to 2017 there has 
+been increase from 45,062 to 229,028. So far in 2017 net revenue has increased from year 2015 and 
+2016 which is good sign. 
